@@ -1,7 +1,7 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export interface FlamegraphQuery extends DataQuery {
-  name: string;
+  name?: string;
   format: string;
   from?: number | string;
   until?: number | string;

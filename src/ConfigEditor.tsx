@@ -54,12 +54,12 @@ export class ConfigEditor extends PureComponent<Props, State> {
       <div className="gf-form-group">
         <div className="gf-form">
           <FormField
-            label="Endpoint"
+            label="Pyroscope instance"
             labelWidth={6}
             inputWidth={20}
             onChange={this.onPathChange}
             value={jsonData.path || ''}
-            placeholder="url to your pyroscope flamegraph API endpoint"
+            placeholder="url to your pyroscope instance"
           />
         </div>
 
