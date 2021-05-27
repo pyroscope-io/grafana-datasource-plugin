@@ -9,6 +9,7 @@ import {
 import { getBackendSrv, BackendSrv } from "@grafana/runtime";
 
 import { FlamegraphQuery, MyDataSourceOptions } from './types';
+import { getTemplateSrv } from '@grafana/runtime';
 
 
 
@@ -48,22 +49,31 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     const from = range.raw.from.valueOf();
     const until = range.raw.to.valueOf();
 
-    const promises = options.targets.map((query) =>
-    this.getFlamegraph({ ...query, from, until }).then((response: any) => {
-      const frame = new MutableDataFrame({
-        refId: query.refId,
-        name: query.name,
-        fields: [
-          { name: "flamebearer", type: FieldType.other },
-        ],
-      });
+    const promises = options.targets.map((query) => {
+      let nameFromVar: string | undefined;
+      if(query?.name?.startsWith('$')) {
+        const appNameVar = getTemplateSrv().getVariables().find((vari => query?.name?.slice(1) === vari.name));
+        // @ts-ignore
+        nameFromVar = appNameVar?.query;
+      }
+      return this.getFlamegraph({ ...query, name: nameFromVar || query.name, from, until }).then((response: any) => {
+        const frame = new MutableDataFrame({
+          refId: query.refId,
+          name: nameFromVar || query.name,
+          fields: [
+            { name: "flamebearer", type: FieldType.other },
+          ],
+          meta: {
+              preferredVisualisationType: 'table',
+          },
+        });
 
-      frame.appendRow([response.data.flamebearer]);
+        frame.appendRow([response.data.flamebearer]);
 
-      return frame;
-    })
-  );
-
+        return frame;
+      })
+    }
+    );
     return Promise.all(promises).then((data) => ({ data }));
   }
 

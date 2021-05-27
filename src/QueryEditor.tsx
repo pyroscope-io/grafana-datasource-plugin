@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { useState, useEffect } from 'react';
-import { AsyncSelect, Label, Field } from '@grafana/ui';
+import { Label, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, MyDataSourceOptions, FlamegraphQuery } from './types';
@@ -11,6 +11,7 @@ type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
   const query = defaults(props.query, defaultQuery);
+  console.log(props);
   const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
   const [names, setNames] = useState<SelectableValue<string>[]>([]);
   const loadAppNames = (query: string) => {
@@ -28,8 +29,10 @@ export const QueryEditor = (props: Props) => {
 
   useEffect(() => {
     const { onChange, query, onRunQuery } = props;
-    onChange({ ...query, name: appName.value });
-    onRunQuery();
+    if(appName.value) {
+      onChange({ ...query, name: appName.value });
+      onRunQuery();
+    }
   }, [appName]);
 
     return (
@@ -42,15 +45,14 @@ export const QueryEditor = (props: Props) => {
         /> */}
         <div style={{display: 'flex', flexDirection: 'row', marginTop: '10px'}}>
         <Label style={{marginTop: '8px', marginRight: '10px'}}>Application</Label>
-        <Field>
-          <AsyncSelect
-            placeholder='Application name'
-            value={appName}
-            onChange={setAppName}
-            defaultOptions={names}
-            loadOptions={(query: string) => Promise.resolve(names.filter(name => name.value?.includes(query)))}
-          />
-        </Field>
+        <Select
+          onChange={(v) => v ? setAppName(v) : setAppName({label:'', value: ''})}
+          value={appName}
+          options={names}
+          backspaceRemovesValue
+          isClearable
+          allowCustomValue
+        />
         </div>
       </div>
     );
