@@ -11,7 +11,6 @@ type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
   const query = defaults(props.query, defaultQuery);
-  console.log(props);
   const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
   const [names, setNames] = useState<SelectableValue<string>[]>([]);
   const loadAppNames = (query: string) => {
