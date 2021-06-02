@@ -6,12 +6,11 @@ import {
   MutableDataFrame,
   FieldType,
 } from '@grafana/data';
-import { getBackendSrv, BackendSrv } from "@grafana/runtime";
+import { getBackendSrv, BackendSrv } from '@grafana/runtime';
 
 import { FlamegraphQuery, MyDataSourceOptions } from './types';
 import { getTemplateSrv } from '@grafana/runtime';
-
-
+import { deltaDiff } from './flamebearer';
 
 export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptions> {
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -26,20 +25,24 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   url: string;
 
   async getFlamegraph(query: FlamegraphQuery) {
-    const result = await this.backendSrv.fetch({
-      method: 'GET',
-      url: this.url +'/render/render',
-      params: query,
-    }).toPromise();
+    const result = await this.backendSrv
+      .fetch({
+        method: 'GET',
+        url: this.url + '/render/render',
+        params: query,
+      })
+      .toPromise();
 
     return result;
   }
 
   async getNames() {
-    const result = await this.backendSrv.fetch<Array<string>>({
-      method: 'GET',
-      url: this.url +'/render/label-values?label=__name__',
-    }).toPromise();
+    const result = await this.backendSrv
+      .fetch<string[]>({
+        method: 'GET',
+        url: this.url + '/render/label-values?label=__name__',
+      })
+      .toPromise();
 
     return result;
   }
@@ -49,10 +52,12 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     const from = range.raw.from.valueOf();
     const until = range.raw.to.valueOf();
 
-    const promises = options.targets.map((query) => {
+    const promises = options.targets.map(query => {
       let nameFromVar: string | undefined;
-      if(query?.name?.startsWith('$')) {
-        const appNameVar = getTemplateSrv().getVariables().find((vari => query?.name?.slice(1) === vari.name));
+      if (query?.name?.startsWith('$')) {
+        const appNameVar = getTemplateSrv()
+          .getVariables()
+          .find(vari => query?.name?.slice(1) === vari.name);
         // @ts-ignore
         nameFromVar = appNameVar?.query;
       }
@@ -60,21 +65,23 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
         const frame = new MutableDataFrame({
           refId: query.refId,
           name: nameFromVar || query.name,
-          fields: [
-            { name: "flamebearer", type: FieldType.other },
-          ],
+          fields: [{ name: 'flamebearer', type: FieldType.other }],
           meta: {
-              preferredVisualisationType: 'table',
+            preferredVisualisationType: 'table',
           },
         });
 
-        frame.appendRow([response.data.flamebearer]);
+        frame.appendRow([
+          {
+            ...response.data.flamebearer,
+            levels: deltaDiff(response.data.flamebearer.levels),
+          },
+        ]);
 
         return frame;
-      })
-    }
-    );
-    return Promise.all(promises).then((data) => ({ data }));
+      });
+    });
+    return Promise.all(promises).then(data => ({ data }));
   }
 
   loadAppNames(): Promise<any> {
@@ -83,7 +90,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
 
   async testDatasource() {
     const names = await this.getNames();
-    if(names.status === 200) {
+    if (names.status === 200) {
       return {
         status: 'success',
         message: 'Success',
