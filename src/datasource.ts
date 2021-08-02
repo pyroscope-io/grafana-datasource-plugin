@@ -65,9 +65,19 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
         const frame = new MutableDataFrame({
           refId: query.refId,
           name: nameFromVar || query.name,
-          fields: [{ name: 'flamebearer', type: FieldType.other }],
+          fields: [
+            { name: 'flamebearer', type: FieldType.other },
+            {name: "traceID", 	type: FieldType.string },
+            {name: "spanID", 	type: FieldType.string },
+            {name: "parentSpanID", 	type: FieldType.string },
+            {name: "serviceName", 	type: FieldType.string },
+            {name: "serviceTags", 	type: FieldType.other },
+            {name: "startTime", 	type: FieldType.number },
+            {name: "duration", 	type: FieldType.number },
+            {name: "operationName", type: FieldType.string },
+          ],
           meta: {
-            preferredVisualisationType: 'table',
+            preferredVisualisationType: 'trace',
           },
         });
 
@@ -76,6 +86,28 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
             ...response.data.flamebearer,
             levels: deltaDiff(response.data.flamebearer.levels),
           },
+          "142ba98fb31b78d6",
+          "142ba98fb31b78d6",
+          "",
+          "loki-all",
+          [],
+          1627916367476,
+          99,
+          "CAS_CAS",
+        ]);
+        frame.appendRow([
+          {
+            ...response.data.flamebearer,
+            levels: deltaDiff(response.data.flamebearer.levels),
+          },
+          "142ba98fb31b78d6",
+          "4bcdf97bd09f61d7",
+          "142ba98fb31b78d6",
+          "loki-all",
+          [],
+          1627916367477,
+          74,
+          "CAS"
         ]);
 
         return frame;
@@ -103,3 +135,6 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     }
   }
 }
+
+
+const x = {"data":[{"traceID":"142ba98fb31b78d6","spans":[{"traceID":"142ba98fb31b78d6","spanID":"142ba98fb31b78d6","flags":1,"operationName":"CAS","references":[],"startTime":1627916367476700,"duration":99,"tags":[{"key":"sampler.type","type":"string","value":"const"},{"key":"sampler.param","type":"bool","value":true},{"key":"span.kind","type":"string","value":"client"},{"key":"internal.span.format","type":"string","value":"proto"}],"logs":[],"processID":"p1","warnings":null},{"traceID":"142ba98fb31b78d6","spanID":"4bcdf97bd09f61d7","flags":1,"operationName":"CAS loop","references":[{"refType":"CHILD_OF","traceID":"142ba98fb31b78d6","spanID":"142ba98fb31b78d6"}],"startTime":1627916367476721,"duration":74,"tags":[{"key":"span.kind","type":"string","value":"client"},{"key":"internal.span.format","type":"string","value":"proto"}],"logs":[],"processID":"p1","warnings":null}],"processes":{"p1":{"serviceName":"loki-all","tags":[{"key":"client-uuid","type":"string","value":"7e6fff523e4fa521"},{"key":"hostname","type":"string","value":"ea9ab9bb7008"},{"key":"ip","type":"string","value":"172.20.0.4"},{"key":"jaeger.version","type":"string","value":"Go-2.28.0"}]}},"warnings":null}],"total":0,"limit":0,"offset":0,"errors":null}

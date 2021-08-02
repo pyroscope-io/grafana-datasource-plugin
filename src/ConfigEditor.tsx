@@ -27,7 +27,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
       <div className="gf-form-group">
         <div className="gf-form">
           <FormField
-            label="Pyroscope instance"
+            label="URL"
             labelWidth={6}
             inputWidth={20}
             onChange={this.onPathChange}
