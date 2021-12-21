@@ -53,15 +53,9 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     const until = range.raw.to.valueOf();
 
     const promises = options.targets.map(query => {
-      let nameFromVar: string | undefined;
-      if (query?.name?.startsWith('$')) {
-        const appNameVar = getTemplateSrv()
-          .getVariables()
-          .find(vari => query?.name?.slice(1) === vari.name);
-        // @ts-ignore
-        nameFromVar = appNameVar?.query;
-      }
-      return this.getFlamegraph({ ...query, name: nameFromVar || query.name, from, until }).then((response: any) => {
+      let nameFromVar = getTemplateSrv().replace(query.name);
+
+      return this.getFlamegraph({ ...query, name: nameFromVar, from, until }).then((response: any) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
           name: nameFromVar || query.name,
