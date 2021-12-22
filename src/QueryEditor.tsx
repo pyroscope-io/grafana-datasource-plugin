@@ -1,8 +1,8 @@
 import defaults from 'lodash/defaults';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Label, QueryField, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, MyDataSourceOptions, FlamegraphQuery } from './types';
 
@@ -10,8 +10,7 @@ type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
   const query = defaults(props.query, defaultQuery);
-  const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
-
+  //  const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
   const loadAppNames = () => {
     return props.datasource.loadAppNames().then(
       result => {
@@ -23,13 +22,9 @@ export const QueryEditor = (props: Props) => {
     );
   };
 
-  useEffect(() => {
-    const { onChange, query } = props;
-    if (appName.value) {
-      onChange({ ...query, name: appName.value });
-    }
-    // eslint-disable-next-line
-  }, [appName]);
+  const onChange = (v: string) => {
+    props.onChange({ ...query, query: v });
+  };
 
   const onTypeAhead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
     const appNames = await loadAppNames();
@@ -53,10 +48,12 @@ export const QueryEditor = (props: Props) => {
           <QueryField
             placeholder="Enter a FlameQL query (run with Shift+Enter)"
             portalOrigin="pyroscope"
-            onRunQuery={props.onRunQuery}
-            query="$query0"
+            onRunQuery={() => {
+              props.onRunQuery();
+            }}
+            query={query.query}
             onTypeahead={onTypeAhead}
-            onChange={v => (v ? setAppName({ value: v }) : setAppName({ label: '', value: '' }))}
+            onChange={onChange}
           />
         </div>
       </div>

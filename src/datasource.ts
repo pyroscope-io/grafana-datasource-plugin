@@ -8,7 +8,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv, BackendSrv } from '@grafana/runtime';
 
-import { FlamegraphQuery, MyDataSourceOptions } from './types';
+import { defaultQuery, FlamegraphQuery, MyDataSourceOptions } from './types';
 import { getTemplateSrv } from '@grafana/runtime';
 import { deltaDiff } from './flamebearer';
 
@@ -53,9 +53,15 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     const until = range.raw.to.valueOf();
 
     const promises = options.targets.map(query => {
-      let nameFromVar = getTemplateSrv().replace(query.name);
+      let nameFromVar = getTemplateSrv().replace(query.query);
 
-      return this.getFlamegraph({ ...query, name: nameFromVar, from, until }).then((response: any) => {
+      return this.getFlamegraph({
+        ...defaultQuery,
+        ...query,
+        query: nameFromVar,
+        from,
+        until,
+      }).then((response: any) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
           name: nameFromVar || query.name,
