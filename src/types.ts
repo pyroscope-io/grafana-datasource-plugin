@@ -1,14 +1,15 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export interface FlamegraphQuery extends DataQuery {
-  query?: string;
+  // For backwards compatibility, 'name' is equivalent to 'query'
+  name: string;
   format?: string;
   from?: number | string;
   until?: number | string;
 }
 
 export const defaultQuery: Partial<FlamegraphQuery> = {
-  query: '',
+  name: 'pyroscope.server.cpu',
   format: 'json',
   from: 'now-1h',
   until: 'now',

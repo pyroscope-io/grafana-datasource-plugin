@@ -25,12 +25,15 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   url: string;
 
   async getFlamegraph(query: FlamegraphQuery) {
-    console.log({ query });
+    // transform 'name' -> 'query'
+    // and also get rid of 'name', since it would affect the results
+    let { name, ...newQuery } = { ...query, query: query.name };
+
     const result = await this.backendSrv
       .fetch({
         method: 'GET',
         url: this.url + '/render/render',
-        params: query,
+        params: newQuery,
       })
       .toPromise();
 
@@ -49,25 +52,23 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   }
 
   async query(options: DataQueryRequest<FlamegraphQuery>): Promise<DataQueryResponse> {
-    console.log({ options });
     const { range } = options;
     const from = range.raw.from.valueOf();
     const until = range.raw.to.valueOf();
 
     const promises = options.targets.map(query => {
-      let nameFromVar = getTemplateSrv().replace(query.query);
+      let nameFromVar = getTemplateSrv().replace(query.name);
 
       return this.getFlamegraph({
         ...defaultQuery,
         ...query,
-        query: nameFromVar,
+        name: nameFromVar,
         from,
         until,
       }).then((response: any) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
-          //name: nameFromVar || query.name,
-          query: nameFromVar || query.query,
+          name: nameFromVar,
           fields: [{ name: 'flamebearer', type: FieldType.other }],
           meta: {
             preferredVisualisationType: 'table',

@@ -9,8 +9,8 @@ import { defaultQuery, MyDataSourceOptions, FlamegraphQuery } from './types';
 type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
-  const query = defaults({ ...props.query, name: '' }, defaultQuery);
-  //  const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
+  const query = defaults({ ...props.query }, defaultQuery);
+
   const loadAppNames = () => {
     return props.datasource.loadAppNames().then(
       result => {
@@ -23,8 +23,7 @@ export const QueryEditor = (props: Props) => {
   };
 
   const onChange = (v: string) => {
-    console.log('onChange', query);
-    props.onChange({ ...query, query: v });
+    props.onChange({ ...query, name: v });
   };
 
   const onTypeAhead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
@@ -52,7 +51,7 @@ export const QueryEditor = (props: Props) => {
             onRunQuery={() => {
               props.onRunQuery();
             }}
-            query={query.query}
+            query={query.name}
             onTypeahead={onTypeAhead}
             onChange={onChange}
           />
