@@ -9,7 +9,7 @@ import { defaultQuery, MyDataSourceOptions, FlamegraphQuery } from './types';
 type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
-  const query = defaults(props.query, defaultQuery);
+  const query = defaults({ ...props.query, name: '' }, defaultQuery);
   //  const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
   const loadAppNames = () => {
     return props.datasource.loadAppNames().then(
@@ -23,6 +23,7 @@ export const QueryEditor = (props: Props) => {
   };
 
   const onChange = (v: string) => {
+    console.log('onChange', query);
     props.onChange({ ...query, query: v });
   };
 

@@ -1,7 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export interface FlamegraphQuery extends DataQuery {
-  name?: string;
   query?: string;
   format?: string;
   from?: number | string;
@@ -9,7 +8,7 @@ export interface FlamegraphQuery extends DataQuery {
 }
 
 export const defaultQuery: Partial<FlamegraphQuery> = {
-  name: '',
+  query: '',
   format: 'json',
   from: 'now-1h',
   until: 'now',

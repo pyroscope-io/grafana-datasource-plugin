@@ -25,6 +25,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   url: string;
 
   async getFlamegraph(query: FlamegraphQuery) {
+    console.log({ query });
     const result = await this.backendSrv
       .fetch({
         method: 'GET',
@@ -48,6 +49,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   }
 
   async query(options: DataQueryRequest<FlamegraphQuery>): Promise<DataQueryResponse> {
+    console.log({ options });
     const { range } = options;
     const from = range.raw.from.valueOf();
     const until = range.raw.to.valueOf();
@@ -64,7 +66,8 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
       }).then((response: any) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
-          name: nameFromVar || query.name,
+          //name: nameFromVar || query.name,
+          query: nameFromVar || query.query,
           fields: [{ name: 'flamebearer', type: FieldType.other }],
           meta: {
             preferredVisualisationType: 'table',
@@ -74,6 +77,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
         frame.appendRow([
           {
             ...response.data.flamebearer,
+            ...response.data.metadata,
             levels: deltaDiff(response.data.flamebearer.levels),
           },
         ]);
