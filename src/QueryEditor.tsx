@@ -1,58 +1,61 @@
 import defaults from 'lodash/defaults';
 
-import React, { useState, useEffect } from 'react';
-import { Label, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import React from 'react';
+import { Label, QueryField, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
+import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, MyDataSourceOptions, FlamegraphQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, FlamegraphQuery, MyDataSourceOptions>;
 
 export const QueryEditor = (props: Props) => {
-  const query = defaults(props.query, defaultQuery);
-  const [appName, setAppName] = useState<SelectableValue<string>>({ label: query.name, value: query.name });
-  const [names, setNames] = useState<Array<SelectableValue<string>>>([]);
-  const loadAppNames = (query: string) => {
+  const query = defaults({ ...props.query }, defaultQuery);
+
+  const loadAppNames = () => {
     return props.datasource.loadAppNames().then(
-      result => setNames(result.data.map((value: string) => ({ label: value, value }))),
+      result => {
+        return result.data.map((value: string) => ({ label: value, value }));
+      },
       response => {
         throw new Error(response.statusText);
       }
     );
   };
 
-  useEffect(() => {
-    loadAppNames('');
-    // eslint-disable-next-line
-  }, []);
+  const onChange = (v: string) => {
+    props.onChange({ ...query, name: v });
+  };
 
-  useEffect(() => {
-    const { onChange, query, onRunQuery } = props;
-    if (appName.value) {
-      onChange({ ...query, name: appName.value });
-      onRunQuery();
-    }
-    // eslint-disable-next-line
-  }, [appName]);
+  const onTypeAhead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
+    const appNames = await loadAppNames();
+
+    return {
+      suggestions: [
+        {
+          label: 'Applications',
+          items: [...appNames],
+        },
+      ],
+    };
+  };
 
   return (
     <div className="gf-form">
-      {/* <FormField
-          labelWidth={8}
-          value={name}
-          onChange={this.onNameChange}
-          label="Application name"
-        /> */}
       <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10px' }}>
-        <Label style={{ marginTop: '8px', marginRight: '10px' }}>Application</Label>
-        <Select
-          onChange={v => (v ? setAppName(v) : setAppName({ label: '', value: '' }))}
-          value={appName}
-          options={names}
-          backspaceRemovesValue
-          isClearable
-          allowCustomValue
-        />
+        <Label style={{ marginTop: '8px', marginRight: '10px' }}>Query</Label>
+
+        <div className="gf-form gf-form--grow flex-shrink-1 min-width-30">
+          <QueryField
+            placeholder="Enter a FlameQL query (run with Shift+Enter)"
+            portalOrigin="pyroscope"
+            onRunQuery={() => {
+              props.onRunQuery();
+            }}
+            query={query.name}
+            onTypeahead={onTypeAhead}
+            onChange={onChange}
+          />
+        </div>
       </div>
     </div>
   );

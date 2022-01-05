@@ -8,7 +8,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv, BackendSrv } from '@grafana/runtime';
 
-import { FlamegraphQuery, MyDataSourceOptions } from './types';
+import { defaultQuery, FlamegraphQuery, MyDataSourceOptions } from './types';
 import { getTemplateSrv } from '@grafana/runtime';
 import { deltaDiff } from './flamebearer';
 
@@ -25,11 +25,15 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   url: string;
 
   async getFlamegraph(query: FlamegraphQuery) {
+    // transform 'name' -> 'query'
+    // and also get rid of 'name', since it would affect the results
+    let { name, ...newQuery } = { ...query, query: query.name };
+
     const result = await this.backendSrv
       .fetch({
         method: 'GET',
         url: this.url + '/render/render',
-        params: query,
+        params: newQuery,
       })
       .toPromise();
 
@@ -53,18 +57,18 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     const until = range.raw.to.valueOf();
 
     const promises = options.targets.map(query => {
-      let nameFromVar: string | undefined;
-      if (query?.name?.startsWith('$')) {
-        const appNameVar = getTemplateSrv()
-          .getVariables()
-          .find(vari => query?.name?.slice(1) === vari.name);
-        // @ts-ignore
-        nameFromVar = appNameVar?.query;
-      }
-      return this.getFlamegraph({ ...query, name: nameFromVar || query.name, from, until }).then((response: any) => {
+      let nameFromVar = getTemplateSrv().replace(query.name);
+
+      return this.getFlamegraph({
+        ...defaultQuery,
+        ...query,
+        name: nameFromVar,
+        from,
+        until,
+      }).then((response: any) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
-          name: nameFromVar || query.name,
+          name: nameFromVar,
           fields: [{ name: 'flamebearer', type: FieldType.other }],
           meta: {
             preferredVisualisationType: 'table',
@@ -74,6 +78,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
         frame.appendRow([
           {
             ...response.data.flamebearer,
+            ...response.data.metadata,
             levels: deltaDiff(response.data.flamebearer.levels),
           },
         ]);
