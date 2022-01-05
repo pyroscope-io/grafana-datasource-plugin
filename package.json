@@ -1,6 +1,6 @@
 {
   "name": "pyroscope-pyroscope-data-source-plugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flamegraph data provider",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "Mike Egorov",
+  "author": "Pyroscope devs",
   "license": "Apache-2.0",
   "devDependencies": {
     "@grafana/data": "latest",

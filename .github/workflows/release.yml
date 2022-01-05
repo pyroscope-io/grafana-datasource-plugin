@@ -118,11 +118,13 @@ jobs:
 
       - name: Lint plugin
         run: |
+          export PATH="$(go env GOPATH)/bin/:$PATH"
+
           git clone https://github.com/grafana/plugin-validator
-          pushd ./plugin-validator/cmd/plugincheck
+          pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config lint.config.yaml ${{ steps.metadata.outputs.archive }}
 
       - name: Create release
         id: create_release
