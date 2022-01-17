@@ -31,8 +31,7 @@ sed -i '/"prepare"/d' "$cloneDst/package.json"
 yarn --cwd "$cloneDst"
 
 
-# build panel
-export PYROSCOPE_PANEL_VERSION="$PACKAGE_VERSION"
+export PYROSCOPE_DATASOURCE_VERSION="$PACKAGE_VERSION"
 yarn --cwd "$cloneDst" build:datasource
 
 cp -r "$cloneDst/grafana-plugin/datasource/dist" dist
