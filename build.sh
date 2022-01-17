@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-COMMIT="d0a721dd61297a319f1847a0274accacf5a56f32"
+COMMIT="d408c60916c4296a2a008521acf437a2d474aed0"
 PACKAGE_VERSION=$(cat package.json \
   | grep version \
   | head -1 \
