@@ -1,25 +1,14 @@
-# Pyroscope Grafana Panel Plugin
+# Pyroscope Grafana Datasource Plugin
 
-**Important: Grafana version 7.2 or later required**
+For more info see [pyroscope-datasource plugin for Grafana | Grafana Labs](https://grafana.com/grafana/plugins/pyroscope-datasource/)
+or [pyroscope/grafana-plugin/datasource at main · pyroscope-io/pyroscope](https://github.com/pyroscope-io/pyroscope/tree/main/grafana-plugin/datasource)
 
-## Getting started
 
-1. Install the plugin (Installation tab)
-2. Install [panel plugin](https://grafana.com/grafana/plugins/pyroscope-panel/)
-3. Open Grafana ang go to **Configuratin -> Plugins**
-4. Check that plugins are available
-5. Set up data source plugin:
-   * **Configuration -> Data Sources -> Add data source**
-   * click on `pyroscope-datasource`
-   * Specify Pyroscope host in `Endpoint` field:
-      ![endpoint](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/endpoint.jpg)
-6. Set up panel plugin:
-    * Add an empty panel on your dashboard
-    * Select `pyroscope-panel` from Visualization list
-    * Under panel view in Query tab select `pyroscope-datasource`
-    * In `Application name` input specify app name
-    * Click `Apply`
-   ![settings](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/settings.jpg)
+# Releasing new versions
+1. Update the variable `COMMIT` in `build.sh`
+2. Update `CHANGELOG.md`
+3. Bump the version in `package.json`
+4. Open a Pull Request
+5. Wait for all the checks to have run sucessfully
+6. Merge the pull request
 
-Congratulations! Now you can monitor application flamegraph on your Grafana dashboard!
-![dashboard](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/dashboard.jpg)
