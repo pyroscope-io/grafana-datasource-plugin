@@ -1,6 +1,6 @@
 {
   "name": "pyroscope-pyroscope-data-source-plugin",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Flamegraph data provider",
   "scripts": {
     "build": "./build.sh",
