@@ -1755,10 +1755,10 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.2.tgz#830beaec4b4091a9e9398ac50f865ddea52186b9"
   integrity sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==
 
-"@pyroscope/datasource-plugin@1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@pyroscope/datasource-plugin/-/datasource-plugin-1.1.2.tgz#b818d66dad3e9087891ad34e2a9088f9d816ea4d"
-  integrity sha512-v2mM9KjUNbcTsIIRoHy5RGBWYqKkgac/7F9eVI8qY7P0OJLPqT1c+UcGwe4RIPU+2dxGj2yZUK7Ap439Nh/dvw==
+"@pyroscope/datasource-plugin@1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@pyroscope/datasource-plugin/-/datasource-plugin-1.1.3.tgz#897600f4ad76a64c95b90e5eb6a7d065c22c621a"
+  integrity sha512-QJ1+S7/n/WKQiIUudDXSWd+kPPnTrwQqhtYdXVAwKfPMJXcC2xYc8T7DRbVfyPGORAM7AXUhbe7v6fLNleruNg==
 
 "@react-aria/button@3.3.4":
   version "3.3.4"
