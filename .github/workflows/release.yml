@@ -39,44 +39,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
 
-      - name: Build plugin
-        run: yarn build
+      - name: Pull dependencies
+        run: yarn
 
       - name: Sign plugin
-        run: |
-          # We only have a single dependency, grafana-toolkit
-          # So we install next to where it's needed
-          yarn
-          yarn sign
+        run: yarn sign
         env:
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
-
-      # We reuse the same tests from the other repo, after all, why not?
-      # TODO: run other tests that are valid here
-      # eg: checking README etc
-      - name: Run grafana server
-        run: docker-compose -f pyroscope/grafana-plugin/datasource/docker-compose.yml up -d
-      - name: Run tests
-        run: yarn --cwd pyroscope cy:datasource:ci
-        env:
-          CYPRESS_VIDEO: true
-          CYPRESS_COMPARE_SNAPSHOTS: true
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-screenshots
-          path: pyroscope/cypress/screenshots
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-videos
-          path: pyroscope/cypress/videos
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-snapshots
-          # TODO: scope to only store screenshots that refer to grafana
-          path: pyroscope/cypress/snapshots
 
       # Setup the go environment, since the grafana plugin linter isn't distributed as a binary
       - name: Setup Go environment
@@ -130,7 +99,7 @@ jobs:
       - name: Read changelog
         id: changelog
         run: |
-          awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
+          awk '/^## / {s++} s == 1 {print}' ${{ steps.metadata.outputs.plugin-id }}/CHANGELOG.md > release_notes.md
           echo "::set-output name=path::release_notes.md"
 
       - name: Create tag
@@ -153,7 +122,7 @@ jobs:
           tag_name: 'v${{ steps.metadata.outputs.plugin-version }}'
           release_name: Release ${{ steps.metadata.outputs.plugin-version }}
           body_path: ${{ steps.changelog.outputs.path }}
-          draft: true
+          draft: false
 
       - name: Add plugin to release
         id: upload-plugin-asset
@@ -179,5 +148,5 @@ jobs:
 
       - name: Publish to Grafana.com
         run: |
-          echo "A draft release has been created for your plugin. Please review and publish it."
+          echo "A release has been created for your plugin. Please review and publish it."
           echo "To publish a new version, follow https://github.com/grafana/grafana-plugin-repository#maintain-your-plugin"
