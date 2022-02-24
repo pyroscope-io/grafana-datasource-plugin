@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - main
+
+env:
+  CYPRESS_CACHE_FOLDER: cypress/cache
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,6 +40,13 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
+
+      - name: Cache Cypress Binary
+        id: cache-cypress-binary
+        uses: actions/cache@v2
+        with:
+          path: cypress/cache
+          key: cypress-binary-${{ hashFiles('yarn.lock') }}
 
       - name: Pull dependencies
         run: yarn
