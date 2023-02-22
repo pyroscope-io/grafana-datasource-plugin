@@ -1994,10 +1994,10 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
 
-"@pyroscope/datasource-plugin@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@pyroscope/datasource-plugin/-/datasource-plugin-1.2.0.tgz#8e0d87ed3376f9989f562d9f9def09ee2185d69d"
-  integrity sha512-u+KQ7tONzoan666p1aJ4JmPVSVX+JafXQ+TnQwAVBI1DG4rVcF4uSG0TGfvFrPJEGqS3//ytrG/XNH4pzLf+KQ==
+"@pyroscope/datasource-plugin@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@pyroscope/datasource-plugin/-/datasource-plugin-1.2.1.tgz#91dc8700ba05363399a1b1b10cfc3f76db5fe455"
+  integrity sha512-N/o3w9JYfXny3b+GuduypnL5TRFoBfixKKTCyXSCOMObnN5Fn6v7k8iS+xvA0RZvigFFjjaW5JZUdnRbt1NAUQ==
   dependencies:
     "@grafana/data" "^8.3.1"
     "@grafana/runtime" "^8.3.1"
