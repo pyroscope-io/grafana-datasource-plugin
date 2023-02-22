@@ -11,6 +11,5 @@ For more info see [pyroscope-datasource plugin for Grafana | Grafana Labs](https
 6. Merge the pull request
 7. Open [https://grafana.com/orgs/pyroscope/plugin-submissions/pyroscope-datasource](https://grafana.com/orgs/pyroscope/plugin-submissions/pyroscope-datasource) and submit the plugin, copying the links from this repository's releases.
 
-
 # Contributing
 The code is available in the [main repo](https://github.com/pyroscope-io/pyroscope/tree/main/grafana-plugin/datasource)
