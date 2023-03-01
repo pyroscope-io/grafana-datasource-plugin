@@ -117,4 +117,4 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -sourceCodeUri=file://. -config lint.config.yaml ${{ steps.metadata.outputs.archive }}
