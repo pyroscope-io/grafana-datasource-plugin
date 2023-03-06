@@ -56,13 +56,6 @@ jobs:
         run: yarn sign
         env:
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
-
-      # Setup the go environment, since the grafana plugin linter isn't distributed as a binary
-      - name: Setup Go environment
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.16"
-
       - name: Get plugin metadata
         id: metadata
         run: |
