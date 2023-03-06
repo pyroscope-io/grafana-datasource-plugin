@@ -32,3 +32,5 @@ e2e-results/
 .idea
 
 pyroscope
+
+cypress/videos/*.mp4

@@ -42,7 +42,6 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     return result;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async metricFindQuery(query: string, options?: any) {
     const expandedQuery = getTemplateSrv().replace(query, options.scopedVars);
     const appNamesRegex = /^\s*(apps|applications)(\(\s*\))?\s*$/;
