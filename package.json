@@ -1,21 +1,32 @@
 {
-  "name": "pyroscope-data-source-plugin",
+  "name": "pyroscope-datasource-plugin",
   "version": "1.2.1",
   "description": "Flamegraph data provider",
   "scripts": {
-    "postinstall": "cp -r node_modules/@pyroscope/datasource-plugin/dist .",
     "cy:open": "cypress open",
     "cy:ci": "cypress run",
-    "sign": "grafana-toolkit plugin:sign"
+    "build": "grafana-toolkit plugin:build",
+    "test": "grafana-toolkit plugin:test",
+    "dev": "grafana-toolkit plugin:dev",
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign",
+    "start": "yarn watch"
   },
   "author": "Pyroscope devs",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=14"
   },
-  "dependencies": {
+  "devDependencies": {
     "@grafana/toolkit": "^8.3.2",
     "@pyroscope/datasource-plugin": "1.2.1",
-    "cypress": "^9.5.0"
+    "cypress": "^9.5.0",
+    "@types/lodash": "latest"
+  },
+  "dependencies": {
+    "@grafana/data": "latest",
+    "@grafana/ui": "latest",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   }
 }
