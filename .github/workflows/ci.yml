@@ -115,7 +115,7 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml -sourceCodeUri=. ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config lint.config.yaml -sourceCodeUri=https://github.com/${{github.repository}}/tree/${{github.sha}} ${{ steps.metadata.outputs.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
