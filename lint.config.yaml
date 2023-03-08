@@ -2,3 +2,7 @@ global:
   enabled: true
   severity: error
   jsonOutput: false
+
+analyzers:
+  version:
+    enabled: ${ENABLE_VERSION_ANALYZER}
