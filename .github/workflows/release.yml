@@ -101,7 +101,8 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml -sourceCodeUri=. ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
+
       # until here it's pretty much the same as ci.yml
       # TODO: share the code somehow
 

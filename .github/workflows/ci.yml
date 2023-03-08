@@ -83,18 +83,6 @@ jobs:
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
           echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
 
-      # 
-      # analyzers:
-      #      screenshots:
-      #        rules:
-      #          screenshots:
-      #            # TODO publish screenshots?
-      #            enabled: false
-      #
-      #analyzers:
-      #  version:
-      #    enabled: false
-
 
       # A PR created by pyroscopebot (aka Release Please)
       # bumps package.json and CHANGELOG, which we then want to validate
@@ -115,7 +103,7 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml -sourceCodeUri=. ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
