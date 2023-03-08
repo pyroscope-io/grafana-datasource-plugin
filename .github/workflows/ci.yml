@@ -9,58 +9,25 @@ env:
   CYPRESS_CACHE_FOLDER: cypress/cache
 
 jobs:
-  build:
+  cypress:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14.17"
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
- 
-      - name: Cache yarn cache
-        uses: actions/cache@v2
-        id: cache-yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
- 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v2
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ matrix.node-version }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.node-version }}-node-modules-
-
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-node/
       - name: Cache Cypress Binary
         id: cache-cypress-binary
         uses: actions/cache@v2
         with:
           path: cypress/cache
           key: cypress-binary-${{ hashFiles('yarn.lock') }}
-
       - name: Pull dependencies
         run: yarn
-
-      - name: Sign plugin
-        run: yarn sign
-        env:
-          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
-
-
-      # Smoke test
-      # We already tested it extensively in the other repository
+      - name: Build
+        run: yarn build
       - name: Run grafana server
-        run: docker-compose -f docker-compose.yml up -d
+        run: |
+          docker-compose pull
+          docker-compose up -d
       - name: Run tests
         run: yarn cy:ci
         env:
@@ -69,19 +36,26 @@ jobs:
         if: always()
         with:
           name: cypress-screenshots
-          path: pyroscope/cypress/screenshots
+          path: cypress/screenshots
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: cypress-videos
-          path: pyroscope/cypress/videos
-      # Setup the go environment, since the grafana plugin linter isn't distributed as a binary
-      - name: Setup Go environment
-        if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.16"
+          path: cypress/videos
 
+  build-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-node
+      - name: Pull dependencies
+        run: yarn
+      - name: Build
+        run: yarn build
+      - name: Sign plugin
+        run: yarn sign
+        env:
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
       - name: Get plugin metadata
         id: metadata
         run: |
@@ -109,12 +83,39 @@ jobs:
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
           echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
 
+      # 
+      # analyzers:
+      #      screenshots:
+      #        rules:
+      #          screenshots:
+      #            # TODO publish screenshots?
+      #            enabled: false
+      #
+      #analyzers:
+      #  version:
+      #    enabled: false
+
+
+      # A PR created by pyroscopebot (aka Release Please)
+      # bumps package.json and CHANGELOG, which we then want to validate
+      # If it's a user PR, don't check the version
+      - uses: haya14busa/action-cond@v1
+        id: ENABLE_VERSION_ANALYZER
+        name: 'Enable linting version?'
+        with:
+          cond: ${{ github.event.pull_request.user.login }} == 'pyroscopebot'
+          if_true: true
+          if_false: false
+
       - name: Lint plugin
         run: |
           export PATH="$(go env GOPATH)/bin/:$PATH"
-
+          envsubst < lint.config.yaml > lint.config.yaml
           git clone https://github.com/grafana/plugin-validator
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config lint.config.yaml -sourceCodeUri=. ${{ steps.metadata.outputs.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
