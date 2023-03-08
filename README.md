@@ -1,15 +1,51 @@
 # Pyroscope Grafana Datasource Plugin
 
-For more info see [pyroscope-datasource plugin for Grafana | Grafana Labs](https://grafana.com/grafana/plugins/pyroscope-datasource/)
+**Important: Grafana version 7.2 or later required**
 
+## Getting started
 
-# Releasing new versions
-1. Update the `@pyroscope/datasource-plugin` dependency
-2. Update the version in `package.json` to match the same version from the `@pyroscope/datasource-plugin` dependency
-4. Open a Pull Request
-5. Wait for all the checks to have run successfully
-6. Merge the pull request
-7. Open [https://grafana.com/orgs/pyroscope/plugin-submissions/pyroscope-datasource](https://grafana.com/orgs/pyroscope/plugin-submissions/pyroscope-datasource) and submit the plugin, copying the links from this repository's releases.
+1. Install the plugin (Installation tab)
+2. Install [panel plugin](https://grafana.com/grafana/plugins/pyroscope-panel/)
+3. Open Grafana and go to **Configuration -> Plugins**
+4. Check that plugins are available
+5. Set up data source plugin:
+   - **Configuration -> Data Sources -> Add data source**
+   - click on `pyroscope-datasource`
+   - Specify Pyroscope host in `Endpoint` field:
+     ![endpoint](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/endpoint.jpg)
+6. Set up panel plugin:
+   - Add an empty panel on your dashboard
+   - Select `pyroscope-panel` from Visualization list
+   - Under panel view in Query tab select `pyroscope-datasource`
+   - In `Application name` input specify app name
+   - Click `Apply`
+     ![settings](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/settings.jpg)
 
-# Contributing
-The code is available in the [main repo](https://github.com/pyroscope-io/pyroscope/tree/main/grafana-plugin/datasource)
+Congratulations! Now you can monitor application flamegraph on your Grafana dashboard!
+![dashboard](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/dashboard.jpg)
+
+### Datasource template variables
+
+You can use variables of the type **Query** to query Pyroscope for a list of applications, labels, or label values.
+Variable query functions supported by Pyroscope data source:
+
+| Name                                  | Description                                              |
+| ------------------------------------- | -------------------------------------------------------- |
+| apps()                                | Returns a list of application names                      |
+| label_names(_app_name_)               | Returns a list of label names for the application        |
+| label_values(_app_name_,_label_name_) | Returns a list of label values for the application label |
+
+#### Example
+
+Create a new variable in the dashboard settings:
+
+- Name: `appName`
+- Type: **Query**
+- Data source: **select your Pyroscope data source**
+- Query: `apps()`
+
+Now you should see the list of applications returned from the Pyroscope data source, and use the variable in the panel **Query** field:
+
+```
+$appName{}
+```
