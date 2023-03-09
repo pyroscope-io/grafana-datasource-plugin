@@ -42,7 +42,8 @@ jobs:
 
       - name: Pull dependencies
         run: yarn
-
+      - name: Build
+        run: yarn build
       - name: Sign plugin
         run: yarn sign
         env:
@@ -109,41 +110,13 @@ jobs:
       ##########################
       # Release Specific Stuff #
       ##########################
-      - name: Read changelog
-        id: changelog
-        run: |
-          awk '/^## / {s++} s == 1 {print}' ${{ steps.metadata.outputs.plugin-id }}/CHANGELOG.md > release_notes.md
-          echo "::set-output name=path::release_notes.md"
-
-      - name: Create tag
-        uses: actions/github-script@v5
-        with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/v${{ steps.metadata.outputs.plugin-version }}',
-              sha: context.sha
-            })
-          
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: 'v${{ steps.metadata.outputs.plugin-version }}'
-          release_name: Release ${{ steps.metadata.outputs.plugin-version }}
-          body_path: ${{ steps.changelog.outputs.path }}
-          draft: false
-
       - name: Add plugin to release
         id: upload-plugin-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./${{ steps.metadata.outputs.archive }}
           asset_name: ${{ steps.metadata.outputs.archive }}
           asset_content_type: application/zip
@@ -154,7 +127,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./${{ steps.metadata.outputs.archive-checksum }}
           asset_name: ${{ steps.metadata.outputs.archive-checksum }}
           asset_content_type: text/plain
