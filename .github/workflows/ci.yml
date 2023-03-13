@@ -83,18 +83,6 @@ jobs:
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
           echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
 
-
-      # A PR created by pyroscopebot (aka Release Please)
-      # bumps package.json and CHANGELOG, which we then want to validate
-      # If it's a user PR, don't check the version
-      - uses: haya14busa/action-cond@v1
-        id: ENABLE_VERSION_ANALYZER
-        name: 'Enable linting version?'
-        with:
-          cond: ${{ github.event.pull_request.user.login }} == 'pyroscopebot'
-          if_true: true
-          if_false: false
-
       - name: Lint plugin
         run: |
           export PATH="$(go env GOPATH)/bin/:$PATH"
@@ -106,4 +94,4 @@ jobs:
           plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          ENABLE_VERSION_ANALYZER: false
