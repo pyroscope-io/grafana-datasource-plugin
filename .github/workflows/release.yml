@@ -82,7 +82,7 @@ jobs:
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
           echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
-      - name: Install Plugin Validator
+      - name: Lint plugin
         run: |
           export PATH="$(go env GOPATH)/bin/:$PATH"
           envsubst < lint.config.yaml > lint.config.yaml
@@ -90,10 +90,11 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-      - name: Lint Plugin
-        run: plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
+
+          plugincheck2 -strict -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
         env:
           ENABLE_VERSION_ANALYZER: true
+          DEBUG: 1
 
       # until here it's pretty much the same as ci.yml
       # TODO: share the code somehow

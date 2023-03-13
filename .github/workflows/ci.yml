@@ -92,19 +92,7 @@ jobs:
           go install
           popd
 
-          echo "Linting plugin"
           plugincheck2 -strict -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
-          echo "Linted plugin"
         env:
-          ENABLE_VERSION_ANALYZER: true
+          ENABLE_VERSION_ANALYZER: false
           DEBUG: 1
-      - name: Lint plugin 2
-        run: |
-          docker run --env=DEBUG=1 \
-            -v $(pwd)/${{ steps.metadata.outputs.archive }}:/plugin.zip \
-            -v $(pwd):/src --pull=always \
-            grafana/plugin-validator-cli  \
-            -sourceCodeUri=file:///src \
-            -config=/src/lint.config.yaml \
-            -strict \
-            /plugin.zip
