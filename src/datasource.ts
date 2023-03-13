@@ -107,11 +107,21 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
 
   fetchNames() {
     return this.backendSrv
-      .fetch<string[]>({
+      .fetch<{ name: string }[]>({
         method: 'GET',
         url: `${this.url}/render/api/apps`,
       })
-      .toPromise();
+      .toPromise()
+      .then((response) => {
+        if (!response) {
+          return [];
+        }
+
+        return response.data.map((a) => a.name);
+      })
+      .catch(() => {
+        return [];
+      });
   }
 
   async query(options: DataQueryRequest<FlamegraphQuery>): Promise<DataQueryResponse> {

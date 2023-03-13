@@ -14,7 +14,7 @@ export const QueryEditor = (props: Props) => {
   const loadAppNames = () => {
     return props.datasource.loadAppNames().then(
       (result) => {
-        return result.data.map((value: string) => ({ label: value, value }));
+        return result.map((value: string) => ({ label: value, value }));
       },
       (response) => {
         throw new Error(response.statusText);
