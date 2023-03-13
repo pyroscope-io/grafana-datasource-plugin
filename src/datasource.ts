@@ -109,7 +109,7 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   // it returns nothing when it fails to communicate with the server
   fetchNames() {
     return this.backendSrv
-      .fetch<{ name: string }[]>({
+      .fetch<Array<{ name: string }>>({
         method: 'GET',
         url: `${this.url}/render/api/apps`,
       })
@@ -169,14 +169,14 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   }
 
   async testDatasource() {
-    const names = await this.backendSrv
-      .fetch<{ name: string }[]>({
+    const response = await this.backendSrv
+      .fetch<Array<{ name: string }>>({
         method: 'GET',
         url: `${this.url}/render/api/apps`,
       })
       .toPromise();
 
-    if (names && names.status === 200) {
+    if (response && response.status === 200) {
       return {
         status: 'success',
         message: 'Success',
