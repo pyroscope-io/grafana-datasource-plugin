@@ -11,6 +11,7 @@ import { getBackendSrv, BackendSrv, getTemplateSrv } from '@grafana/runtime';
 
 import { defaultQuery, FlamegraphQuery, MyDataSourceOptions } from './types';
 import { deltaDiff } from './flamebearer';
+import { noopFlamegraph } from './noopFlamegraph';
 
 export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptions> {
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -31,15 +32,22 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     // and also get rid of 'name', since it would affect the results
     const { name, ...newQuery } = { ...query, query: query.name };
 
-    const result = await this.backendSrv
-      .fetch({
-        method: 'GET',
-        url: `${this.url}/render/render`,
-        params: newQuery,
-      })
-      .toPromise();
+    try {
+      const result = await this.backendSrv
+        .fetch({
+          method: 'GET',
+          url: `${this.url}/render/render`,
+          params: newQuery,
+        })
+        .toPromise();
 
-    return result;
+      return result;
+    } catch (e) {
+      // Return a noop flamegraph, so that the panel doesn't crash
+      return {
+        data: noopFlamegraph,
+      };
+    }
   }
 
   async metricFindQuery(query: string, options?: any) {
@@ -105,13 +113,25 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     return result.data.map((x) => ({ text: x }));
   }
 
+  // fetchNames fetches all the application names
+  // it returns nothing when it fails to communicate with the server
   fetchNames() {
     return this.backendSrv
-      .fetch<string[]>({
+      .fetch<Array<{ name: string }>>({
         method: 'GET',
         url: `${this.url}/render/api/apps`,
       })
-      .toPromise();
+      .toPromise()
+      .then((response) => {
+        if (!response) {
+          return [];
+        }
+
+        return response.data.map((a) => a.name);
+      })
+      .catch(() => {
+        return [];
+      });
   }
 
   async query(options: DataQueryRequest<FlamegraphQuery>): Promise<DataQueryResponse> {
@@ -157,8 +177,14 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
   }
 
   async testDatasource() {
-    const names = await this.fetchNames();
-    if (names && names.status === 200) {
+    const response = await this.backendSrv
+      .fetch<Array<{ name: string }>>({
+        method: 'GET',
+        url: `${this.url}/render/api/apps`,
+      })
+      .toPromise();
+
+    if (response && response.status === 200) {
       return {
         status: 'success',
         message: 'Success',
