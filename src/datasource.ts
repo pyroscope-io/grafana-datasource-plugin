@@ -11,6 +11,7 @@ import { getBackendSrv, BackendSrv, getTemplateSrv } from '@grafana/runtime';
 
 import { defaultQuery, FlamegraphQuery, MyDataSourceOptions } from './types';
 import { deltaDiff } from './flamebearer';
+import { noopFlamegraph } from './noopFlamegraph';
 
 export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptions> {
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -31,15 +32,22 @@ export class DataSource extends DataSourceApi<FlamegraphQuery, MyDataSourceOptio
     // and also get rid of 'name', since it would affect the results
     const { name, ...newQuery } = { ...query, query: query.name };
 
-    const result = await this.backendSrv
-      .fetch({
-        method: 'GET',
-        url: `${this.url}/render/render`,
-        params: newQuery,
-      })
-      .toPromise();
+    try {
+      const result = await this.backendSrv
+        .fetch({
+          method: 'GET',
+          url: `${this.url}/render/render`,
+          params: newQuery,
+        })
+        .toPromise();
 
-    return result;
+      return result;
+    } catch (e) {
+      // Return a noop flamegraph, so that the panel doesn't crash
+      return {
+        data: noopFlamegraph,
+      };
+    }
   }
 
   async metricFindQuery(query: string, options?: any) {
