@@ -41,7 +41,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
 
       - name: Pull dependencies
-        run: yarn
+        run: yarn --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Sign plugin
@@ -82,8 +82,7 @@ jobs:
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
           echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
-
-      - name: Lint plugin
+      - name: Install Plugin Validator
         run: |
           export PATH="$(go env GOPATH)/bin/:$PATH"
           envsubst < lint.config.yaml > lint.config.yaml
@@ -91,7 +90,8 @@ jobs:
           pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
+      - name: Lint Plugin
+        run: plugincheck2 -config lint.config.yaml -sourceCodeUri=file://./ ${{ steps.metadata.outputs.archive }}
         env:
           ENABLE_VERSION_ANALYZER: true
 

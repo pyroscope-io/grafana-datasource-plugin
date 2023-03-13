@@ -1,7 +1,7 @@
 global:
   enabled: true
-  severity: error
   jsonOutput: false
+  reportAll: true
 
 analyzers:
   version:
