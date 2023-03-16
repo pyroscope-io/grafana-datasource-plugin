@@ -1,6 +1,6 @@
 # Pyroscope Grafana Datasource Plugin
 
-**Important: Grafana version 7.2 or later required**
+**Important: Grafana version 8.0 or later required**
 
 ## Getting started
 
@@ -11,8 +11,7 @@
 5. Set up data source plugin:
    - **Configuration -> Data Sources -> Add data source**
    - click on `pyroscope-datasource`
-   - Specify Pyroscope host in `Endpoint` field:
-     ![endpoint](https://raw.githubusercontent.com/pyroscope-io/grafana-panel-plugin/main/docs/assets/endpoint.jpg)
+   - Specify the Pyroscope address in `Pyroscope instance` field:
 6. Set up panel plugin:
    - Add an empty panel on your dashboard
    - Select `pyroscope-panel` from Visualization list
